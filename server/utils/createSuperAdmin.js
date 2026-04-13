@@ -2,6 +2,7 @@ const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 
 const createSuperAdmin = async () => {
+    
     try {
         const existing = await User.findOne({ role: "superadmin" });
 

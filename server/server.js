@@ -7,6 +7,7 @@ const authRoute = require("./routes/authRoute");
 const companyRoute = require("./routes/companyRoute");
 const inviteRoute = require("./routes/inviteRoute");
 const productRoute = require("./routes/productRoute");
+const createSuperAdmin = require("./utils/CreateSuperadmin");
 
 const app = express();
 
@@ -16,7 +17,12 @@ app.use(express.json());
 
 // DB connection 
 mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log("MongoDB Connected"))
+    .then(async () => {
+        console.log("MongoDB Connected");
+
+        await createSuperAdmin();  
+
+    })
     .catch(err => console.log(err));
 
 // routes
