@@ -11,8 +11,24 @@ const createSuperAdmin = require("./utils/createSuperAdmin");
 
 const app = express();
 
+const allowedOrigins = [
+    "http://localhost:5173",
+    "https://multi-tenant-tzas.vercel.app"
+];
+
+const corsOptions = {
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error("cors not allowed"));
+        }
+    },
+    creadentials: true
+};
+
+app.use(cors(corsOptions));
 // middleware
-app.use(cors());
 app.use(express.json());
 
 // DB connection 
