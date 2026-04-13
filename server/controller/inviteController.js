@@ -22,7 +22,7 @@ exports.inviteEmployee = async (req, res) => {
             return res.status(400).json({
                 msg: "User already invited"
             });
-        }
+        } 
 
         const token = crypto.randomBytes(20).toString("hex");
 

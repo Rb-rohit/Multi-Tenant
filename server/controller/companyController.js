@@ -13,7 +13,7 @@ exports.createCompany = async (req, res) => {
     const {name, adminName, adminEmail, adminPassword} = req.body;
 
     // validate input
-    if (!name || !adminName || !adminEmail || !adminPassword) {
+    if (!name || !adminName || !adminEmail || !adminPassword) { 
         return res.status(400).json({
             msg: "All fields are required"
         });
