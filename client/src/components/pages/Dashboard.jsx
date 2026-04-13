@@ -3,6 +3,7 @@ import {jwtDecode} from "jwt-decode";
 import { useEffect } from "react";
 import { useState } from "react";
 import API from "../../services/api";
+import { Link } from "react-router-dom";
 
 const Dashboard = () => {
     const [user, setUser] = useState(null);
@@ -51,31 +52,31 @@ const Dashboard = () => {
 
                     {user.role ===  "superadmin" && (
                         <>
-                            <a href="/create-company" className="block text-blue-600">
+                            <Link to="/create-company" className="block text-blue-600">
                                 Create Company
-                            </a>
+                            </Link>
 
-                            <a href="/all-produtcs" className="block text-purple-600">
+                            <Link to="/all-produtcs" className="block text-purple-600">
                                 View All Products
-                            </a>
+                            </Link>
                         </>
                     )}
 
                     {user.role === "admin" && (
-                        <a href="/invite" className="block text-green-600">
+                        <Link to="/invite" className="block text-green-600">
                             Invite Employee
-                        </a>
+                        </Link>
                     )}
 
                     {user.role == "employee" && (
-                        <a href="/cerate-product" className="block text-purple-600">
+                        <Link to="/cerate-product" className="block text-purple-600">
                             Add Products
-                        </a>
+                        </Link>
                     )}
 
-                    <a href="/products" className="block text-purple-600">
+                    <Link to="/products" className="block text-purple-600">
                         View Products
-                    </a>
+                    </Link>
                     
                 </div>
             </div>
@@ -96,12 +97,12 @@ const Dashboard = () => {
                                 <span>{c.name}</span>
 
                                 <div className="flex gap-5">
-                                    <a href={`/company/${c._id}/comp-users`} className="text-blue-500 border border-black rounded px-4 py-2">
+                                    <Link to={`/company/${c._id}/comp-users`} className="text-blue-500 border border-black rounded px-4 py-2">
                                     View Users
-                                </a>
-                                <a href={`/company/${c._id}`} className="text-blue-500 border  border-black rounded px-4 py-2">
+                                </Link>
+                                <Link to={`/company/${c._id}`} className="text-blue-500 border  border-black rounded px-4 py-2">
                                     View Data
-                                </a>
+                                </Link>
                                 </div>
                             </div>
                         ))
