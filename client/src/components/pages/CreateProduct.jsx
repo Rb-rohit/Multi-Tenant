@@ -39,7 +39,7 @@ const CreateProduct = () => {
                     onChange={(e) => 
                         setForm({...form, name: e.target.value})
                     }
-                    className='w-full mb-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400'
+                    className='w-full mb-4 py-2 rounded-lg'
                 />
 
                 <input 
@@ -49,7 +49,7 @@ const CreateProduct = () => {
                     onChange={(e) => 
                         setForm({...form, price: e.target.value})
                     }
-                    className="w-full mb-4 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+                    className="w-full mb-4 px-4 py-2 border rounded-lg"
                 />
 
                 <button

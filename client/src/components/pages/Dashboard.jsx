@@ -67,12 +67,16 @@ const Dashboard = () => {
                         </a>
                     )}
 
+                    {user.role == "employee" && (
+                        <a href="/cerate-product" className="block text-purple-600">
+                            Add Products
+                        </a>
+                    )}
+
                     <a href="/products" className="block text-purple-600">
                         View Products
                     </a>
-                    <a href="/cerate-product" className="block text-purple-600">
-                        Add Products
-                    </a>
+                    
                 </div>
             </div>
 

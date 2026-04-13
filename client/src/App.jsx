@@ -1,7 +1,7 @@
-import React from 'react'
+
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Login from './components/pages/Login';
-import CreateCompany from './components/pages/createCompany';
+import CreateCompany from './components/pages/CreateCompany';
 import InviteEmployee from './components/pages/InviteEmployee';
 import RegisterInvite from './components/pages/RegisterInvite';
 import Dashboard from './components/pages/Dashboard';
