@@ -7,7 +7,7 @@ const authRoute = require("./routes/authRoute");
 const companyRoute = require("./routes/companyRoute");
 const inviteRoute = require("./routes/inviteRoute");
 const productRoute = require("./routes/productRoute");
-const createSuperAdmin = require("./utils/CreateSuperadmin");
+const createSuperAdmin = require("./utils/createSuperAdmin");
 
 const app = express();
 
