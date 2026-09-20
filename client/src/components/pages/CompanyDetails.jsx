@@ -1,36 +1,604 @@
-
-import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
-import API from '../../services/api';
+import { useEffect, useMemo, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import API from "../../services/api";
+import {
+    AlertCircle,
+    ArrowLeft,
+    Building2,
+    ChevronRight,
+    Package,
+    Plus,
+    RefreshCw,
+    Search,
+    ShoppingBag,
+    TrendingUp,
+} from "lucide-react";
 
 const CompanyDetails = () => {
-    const {id} = useParams();
+    const { id } = useParams();
+
     const [products, setProducts] = useState([]);
+    const [search, setSearch] = useState("");
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+
+    const fetchProducts = async () => {
+        try {
+            setLoading(true);
+            setError("");
+
+            const res = await API.get(`/products?companyId=${id}`);
+
+            setProducts(Array.isArray(res.data) ? res.data : []);
+        } catch (err) {
+            console.error(err);
+
+            setError(
+                err?.response?.data?.message ||
+                    "Unable to load company products."
+            );
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        API.get(`/products?companyId=${id}`)
-            .then(res => setProducts(res.data))
-            .catch(err => console.log(err));
+        fetchProducts();
     }, [id]);
 
-    return (
-        <div className='p-6'>
-            <h1 className='text-2xl font-bold mb-4'>
-                Company Products
-            </h1>
+    const filteredProducts = useMemo(() => {
+        const query = search.toLowerCase().trim();
 
-            {products.length === 0 ? (
-                <p>No Products found</p>
-            ) : (
-                products.map(p => (
-                    <div key={p._id} className='p-3 border rounded mb-2'>
-                        <h3 className='font-semibold'>{p.name}</h3>
-                        <p>{p.price}</p>
+        if (!query) return products;
+
+        return products.filter((product) =>
+            product.name?.toLowerCase().includes(query)
+        );
+    }, [products, search]);
+
+    const totalProducts = products.length;
+
+    const totalValue = products.reduce(
+        (sum, product) => sum + Number(product.price || 0),
+        0
+    );
+
+    const averagePrice =
+        products.length > 0 ? totalValue / products.length : 0;
+
+    return (
+        <div className="min-h-screen bg-[#F5F7FB] text-[#0F172A]">
+            {/* ================= SIDEBAR ================= */}
+            <aside className="fixed left-0 top-0 hidden h-screen w-[250px] bg-[#0B1220] text-white lg:flex lg:flex-col">
+                {/* Logo */}
+                <div className="flex h-[76px] items-center border-b border-white/10 px-6">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#2563EB]">
+                        <Building2 size={21} />
                     </div>
-                ))
-            )}
+
+                    <div className="ml-3">
+                        <h1 className="text-[16px] font-bold tracking-wide">
+                            MultiTenant
+                        </h1>
+
+                        <p className="text-[11px] text-slate-400">
+                            Enterprise Platform
+                        </p>
+                    </div>
+                </div>
+
+                {/* Navigation */}
+                <nav className="flex-1 px-4 py-6">
+                    <p className="mb-3 px-3 text-[10px] font-semibold uppercase tracking-[0.15em] text-slate-500">
+                        Workspace
+                    </p>
+
+                    <Link
+                        to="/dashboard"
+                        className="mb-1 flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-slate-400 transition hover:bg-white/5 hover:text-white"
+                    >
+                        <TrendingUp size={18} />
+                        Dashboard
+                    </Link>
+
+                    <Link
+                        to="/all-products"
+                        className="mb-1 flex items-center gap-3 rounded-xl bg-[#2563EB] px-3 py-3 text-sm font-medium text-white shadow-lg shadow-blue-950/30"
+                    >
+                        <Package size={18} />
+                        All Products
+                    </Link>
+
+                    <Link
+                        to="/products"
+                        className="mb-1 flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-slate-400 transition hover:bg-white/5 hover:text-white"
+                    >
+                        <ShoppingBag size={18} />
+                        My Products
+                    </Link>
+
+                    <p className="mb-3 mt-8 px-3 text-[10px] font-semibold uppercase tracking-[0.15em] text-slate-500">
+                        Management
+                    </p>
+
+                    <Link
+                        to="/create-product"
+                        className="mb-1 flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-slate-400 transition hover:bg-white/5 hover:text-white"
+                    >
+                        <Plus size={18} />
+                        Create Product
+                    </Link>
+                </nav>
+
+                {/* Bottom */}
+                <div className="border-t border-white/10 p-4">
+                    <div className="rounded-xl bg-white/5 p-3">
+                        <div className="flex items-center gap-3">
+                            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-500/10 text-blue-400">
+                                <Building2 size={17} />
+                            </div>
+
+                            <div className="min-w-0">
+                                <p className="text-xs font-semibold text-white">
+                                    Company Management
+                                </p>
+
+                                <p className="truncate text-[10px] text-slate-500">
+                                    Tenant workspace
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            {/* ================= MAIN ================= */}
+            <main className="lg:ml-[250px]">
+                {/* Header */}
+                <header className="sticky top-0 z-20 border-b border-[#E2E8F0] bg-white/95 backdrop-blur">
+                    <div className="flex min-h-[76px] items-center justify-between gap-4 px-5 sm:px-8">
+                        <div className="min-w-0">
+                            <div className="flex items-center gap-2 text-xs text-slate-400">
+                                <Link
+                                    to="/dashboard"
+                                    className="hover:text-[#2563EB]"
+                                >
+                                    Dashboard
+                                </Link>
+
+                                <ChevronRight size={13} />
+
+                                <Link
+                                    to="/all-products"
+                                    className="hover:text-[#2563EB]"
+                                >
+                                    Products
+                                </Link>
+
+                                <ChevronRight size={13} />
+
+                                <span className="text-slate-500">
+                                    Company
+                                </span>
+                            </div>
+
+                            <h1 className="mt-1 truncate text-xl font-bold tracking-tight text-[#0F172A]">
+                                Company Details
+                            </h1>
+                        </div>
+
+                        <div className="flex shrink-0 items-center gap-2">
+                            <button
+                                onClick={fetchProducts}
+                                disabled={loading}
+                                className="flex h-10 items-center gap-2 rounded-xl border border-[#E2E8F0] bg-white px-3 text-sm font-medium text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                                <RefreshCw
+                                    size={16}
+                                    className={loading ? "animate-spin" : ""}
+                                />
+
+                                <span className="hidden sm:inline">
+                                    Refresh
+                                </span>
+                            </button>
+
+                            <Link
+                                to="/create-product"
+                                className="flex h-10 items-center gap-2 rounded-xl bg-[#2563EB] px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+                            >
+                                <Plus size={17} />
+
+                                <span className="hidden sm:inline">
+                                    Add Product
+                                </span>
+                            </Link>
+                        </div>
+                    </div>
+                </header>
+
+                {/* ================= CONTENT ================= */}
+                <section className="p-5 sm:p-8">
+                    {/* Back */}
+                    <Link
+                        to="/dashboard"
+                        className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition hover:text-[#2563EB]"
+                    >
+                        <ArrowLeft size={16} />
+                        Back to Dashboard
+                    </Link>
+
+                    {/* ================= COMPANY HERO ================= */}
+                    <div className="mb-7 overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white shadow-sm">
+                        <div className="relative overflow-hidden bg-[#0B1220] px-6 py-7 sm:px-8">
+                            {/* Decorative background */}
+                            <div
+                                className="pointer-events-none absolute inset-0 opacity-[0.08]"
+                                style={{
+                                    backgroundImage:
+                                        "linear-gradient(rgba(255,255,255,.3) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.3) 1px, transparent 1px)",
+                                    backgroundSize: "32px 32px",
+                                }}
+                            />
+
+                            <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+                                <div className="flex items-center gap-4">
+                                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#2563EB] text-white shadow-lg shadow-blue-950/40">
+                                        <Building2 size={27} />
+                                    </div>
+
+                                    <div className="min-w-0">
+                                        <p className="mb-1 text-xs font-medium uppercase tracking-wider text-blue-300">
+                                            Company Workspace
+                                        </p>
+
+                                        <h2 className="truncate text-xl font-bold text-white sm:text-2xl">
+                                            Company Products
+                                        </h2>
+
+                                        <p className="mt-1 truncate font-mono text-xs text-slate-400">
+                                            Tenant ID: {id}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="flex w-fit items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5 text-xs font-semibold text-emerald-300">
+                                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                                    Active Workspace
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Company ID */}
+                        <div className="flex flex-col gap-2 px-6 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+                            <div>
+                                <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                                    Company ID
+                                </p>
+
+                                <p className="mt-1 break-all font-mono text-sm text-slate-600">
+                                    {id}
+                                </p>
+                            </div>
+
+                            <div className="text-left sm:text-right">
+                                <p className="text-xs text-slate-400">
+                                    Products in workspace
+                                </p>
+
+                                <p className="mt-1 text-lg font-bold">
+                                    {loading ? "—" : totalProducts}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* ================= STATS ================= */}
+                    <div className="mb-7 grid grid-cols-1 gap-4 md:grid-cols-3">
+                        {/* Total products */}
+                        <div className="rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-sm">
+                            <div className="flex items-start justify-between">
+                                <div>
+                                    <p className="text-sm font-medium text-slate-500">
+                                        Total Products
+                                    </p>
+
+                                    <h3 className="mt-2 text-3xl font-bold tracking-tight">
+                                        {loading ? "—" : totalProducts}
+                                    </h3>
+                                </div>
+
+                                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-[#2563EB]">
+                                    <Package size={21} />
+                                </div>
+                            </div>
+
+                            <p className="mt-4 text-xs text-slate-400">
+                                Products assigned to this company
+                            </p>
+                        </div>
+
+                        {/* Total value */}
+                        <div className="rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-sm">
+                            <div className="flex items-start justify-between">
+                                <div>
+                                    <p className="text-sm font-medium text-slate-500">
+                                        Product Value
+                                    </p>
+
+                                    <h3 className="mt-2 text-3xl font-bold tracking-tight">
+                                        {loading
+                                            ? "—"
+                                            : `₹${totalValue.toLocaleString(
+                                                  "en-IN",
+                                                  {
+                                                      maximumFractionDigits: 0,
+                                                  }
+                                              )}`}
+                                    </h3>
+                                </div>
+
+                                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                                    <TrendingUp size={21} />
+                                </div>
+                            </div>
+
+                            <p className="mt-4 text-xs text-slate-400">
+                                Combined listed price
+                            </p>
+                        </div>
+
+                        {/* Average */}
+                        <div className="rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-sm">
+                            <div className="flex items-start justify-between">
+                                <div>
+                                    <p className="text-sm font-medium text-slate-500">
+                                        Average Price
+                                    </p>
+
+                                    <h3 className="mt-2 text-3xl font-bold tracking-tight">
+                                        {loading
+                                            ? "—"
+                                            : `₹${averagePrice.toLocaleString(
+                                                  "en-IN",
+                                                  {
+                                                      maximumFractionDigits: 0,
+                                                  }
+                                              )}`}
+                                    </h3>
+                                </div>
+
+                                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-violet-50 text-violet-600">
+                                    <ShoppingBag size={21} />
+                                </div>
+                            </div>
+
+                            <p className="mt-4 text-xs text-slate-400">
+                                Average product price
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* ================= PRODUCT TABLE ================= */}
+                    <div className="overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white shadow-sm">
+                        {/* Toolbar */}
+                        <div className="flex flex-col gap-4 border-b border-[#E2E8F0] p-5 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <h3 className="font-semibold text-[#0F172A]">
+                                    Company Products
+                                </h3>
+
+                                <p className="mt-1 text-xs text-slate-400">
+                                    Manage products belonging to this tenant
+                                </p>
+                            </div>
+
+                            <div className="relative w-full sm:w-[300px]">
+                                <Search
+                                    size={17}
+                                    className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                                />
+
+                                <input
+                                    type="text"
+                                    value={search}
+                                    onChange={(e) =>
+                                        setSearch(e.target.value)
+                                    }
+                                    placeholder="Search products..."
+                                    className="h-10 w-full rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] pl-10 pr-4 text-sm outline-none transition placeholder:text-slate-400 focus:border-[#2563EB] focus:bg-white focus:ring-3 focus:ring-blue-50"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Error */}
+                        {error && (
+                            <div className="m-5 flex items-center gap-3 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-600">
+                                <AlertCircle size={18} />
+
+                                <span>{error}</span>
+
+                                <button
+                                    onClick={fetchProducts}
+                                    className="ml-auto font-semibold hover:underline"
+                                >
+                                    Retry
+                                </button>
+                            </div>
+                        )}
+
+                        {/* Loading */}
+                        {loading ? (
+                            <div className="space-y-3 p-5">
+                                {[1, 2, 3, 4, 5].map((item) => (
+                                    <div
+                                        key={item}
+                                        className="h-[68px] animate-pulse rounded-xl bg-slate-100"
+                                    />
+                                ))}
+                            </div>
+                        ) : filteredProducts.length === 0 ? (
+                            /* Empty State */
+                            <div className="flex flex-col items-center justify-center px-6 py-20 text-center">
+                                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
+                                    <Package size={28} />
+                                </div>
+
+                                <h3 className="mt-5 text-base font-semibold">
+                                    {search
+                                        ? "No matching products"
+                                        : "No products found"}
+                                </h3>
+
+                                <p className="mt-1 max-w-sm text-sm text-slate-400">
+                                    {search
+                                        ? "Try another product name."
+                                        : "This company does not have any products yet."}
+                                </p>
+
+                                {!search && (
+                                    <Link
+                                        to="/create-product"
+                                        className="mt-5 flex items-center gap-2 rounded-xl bg-[#2563EB] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
+                                    >
+                                        <Plus size={16} />
+                                        Create Product
+                                    </Link>
+                                )}
+                            </div>
+                        ) : (
+                            /* Product Table */
+                            <div className="overflow-x-auto">
+                                <table className="w-full min-w-[650px]">
+                                    <thead>
+                                        <tr className="border-b border-[#E2E8F0] bg-[#F8FAFC] text-left">
+                                            <th className="px-6 py-4 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                                                Product
+                                            </th>
+
+                                            <th className="px-6 py-4 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                                                Price
+                                            </th>
+
+                                            <th className="px-6 py-4 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                                                Company
+                                            </th>
+
+                                            <th className="px-6 py-4 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                                                Status
+                                            </th>
+
+                                            <th className="px-6 py-4 text-right text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                                                Action
+                                            </th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody className="divide-y divide-[#E2E8F0]">
+                                        {filteredProducts.map((product) => (
+                                            <tr
+                                                key={product._id}
+                                                className="group transition hover:bg-[#F8FAFC]"
+                                            >
+                                                {/* Product */}
+                                                <td className="px-6 py-4">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 font-semibold text-[#2563EB]">
+                                                            {product.name
+                                                                ?.charAt(0)
+                                                                ?.toUpperCase() ||
+                                                                "P"}
+                                                        </div>
+
+                                                        <div>
+                                                            <p className="text-sm font-semibold text-[#0F172A]">
+                                                                {product.name ||
+                                                                    "Unnamed Product"}
+                                                            </p>
+
+                                                            <p className="mt-0.5 text-xs text-slate-400">
+                                                                ID:{" "}
+                                                                {product._id?.slice(
+                                                                    -8
+                                                                )}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+
+                                                {/* Price */}
+                                                <td className="px-6 py-4">
+                                                    <span className="text-sm font-semibold">
+                                                        ₹{" "}
+                                                        {Number(
+                                                            product.price || 0
+                                                        ).toLocaleString(
+                                                            "en-IN"
+                                                        )}
+                                                    </span>
+                                                </td>
+
+                                                {/* Company */}
+                                                <td className="px-6 py-4">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-500">
+                                                            <Building2
+                                                                size={15}
+                                                            />
+                                                        </div>
+
+                                                        <span className="font-mono text-xs text-slate-500">
+                                                            {product.companyId ||
+                                                                id}
+                                                        </span>
+                                                    </div>
+                                                </td>
+
+                                                {/* Status */}
+                                                <td className="px-6 py-4">
+                                                    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-600">
+                                                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                                                        Active
+                                                    </span>
+                                                </td>
+
+                                                {/* Action */}
+                                                <td className="px-6 py-4 text-right">
+                                                    <button
+                                                        type="button"
+                                                        className="inline-flex items-center gap-1 rounded-lg px-3 py-2 text-xs font-semibold text-[#2563EB] opacity-80 transition hover:bg-blue-50 hover:opacity-100"
+                                                    >
+                                                        View
+                                                        <ChevronRight
+                                                            size={14}
+                                                        />
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Footer */}
+                    {!loading && products.length > 0 && (
+                        <div className="mt-5 flex flex-col gap-2 text-xs text-slate-400 sm:flex-row sm:items-center sm:justify-between">
+                            <p>
+                                Showing {filteredProducts.length} of{" "}
+                                {products.length} products
+                            </p>
+
+                            <p className="font-mono">
+                                Tenant: {id}
+                            </p>
+                        </div>
+                    )}
+                </section>
+            </main>
         </div>
     );
 };
 
-export default CompanyDetails
+export default CompanyDetails;

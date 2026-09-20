@@ -53,7 +53,7 @@ const App = () => {
 
         <Route path='/all-produtcs' element={<AllProducts/>} />
 
-        <Route path='/cerate-product' element={<CreateProduct/>} />
+        <Route path='/create-product' element={<CreateProduct/>} />
 
         <Route path='/company/:id' element={<CompanyDetails/>} />
 

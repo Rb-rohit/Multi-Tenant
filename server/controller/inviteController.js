@@ -38,7 +38,8 @@ exports.inviteEmployee = async (req, res) => {
 
         res.json({
             message: "Invite created successfully",
-            inviteLink: `https://multi-tenant-tzas.vercel.app/register/${token}`
+            inviteLink: `https://multi-tenant-tzas.vercel.app/register/${token}`,
+            // inviteLink: `http://localhost:5173/register/${token}`
         });
     } catch (error) {
         console.error(error);
